@@ -25,3 +25,9 @@ extension Array<Letter> {
             .joined(separator: "")
     }
 }
+
+extension Array<Letter> {
+    func prettyPrint() -> String? {
+        return self.map { $0.text }.joined()
+    }
+}

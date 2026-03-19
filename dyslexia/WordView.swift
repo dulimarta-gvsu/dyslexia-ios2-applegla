@@ -10,18 +10,25 @@ struct ContentView: View {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
     }
     @ObservedObject private var viewModel: AppViewModel
-    @State private var letters: [Letter] = []
+    @State private var letters: [Letter?] = []
     
     var body: some View {
         VStack {
             Button("New") {
-                viewModel.startNewGame()
+                viewModel.selectNewWord()
             }.buttonStyle(.borderedProminent)
             Spacer()
-            LetterGroup(letters: $letters) { arr in
-                let z = arr.prettyPrint()
-                print("Rearrange \(z)")
-                viewModel.rearrange(to: arr)
+            
+            let nonNilBinding = Binding<[Letter]>(
+                get: { viewModel.letters.compactMap { $0 } },
+                set: { viewModel.letters = $0.map { Optional($0) } }
+            )
+
+            LetterGroup(letters: nonNilBinding) { arr in
+                if let z = arr.prettyPrint() {
+                    print("Rearrange \(z)")
+                }
+                viewModel.letters = arr.map { Optional($0) }
             }
             Spacer()
         }
@@ -35,11 +42,11 @@ struct ContentView: View {
     }
 }
 
-#if DEBUG
+
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(viewModel: AppViewModel())
     }
 }
-#endif
+
 

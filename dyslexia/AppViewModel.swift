@@ -44,6 +44,7 @@ class AppViewModel: ObservableObject {
     init() {
         selectNewWord()
     }
+    
 
     func selectNewWord() {
 

@@ -1,45 +1,85 @@
 //
-//  ContentView.swift
+//  Untitled.swift
+//  dyslexia
+//
+//  Created by Lauren Applegate on 3/19/26.
+//
+
 //  dyslexia
 
 import SwiftUI
-import Combine
+
+
+enum AppRoute: Hashable {
+    
+    case gameHistory
+    case gameSettings
+    case details(word: String, points: Int, moves: Int, time: Int)
+}
+
 
 struct ContentView: View {
-    init(viewModel: AppViewModel) {
-        self._viewModel = ObservedObject(wrappedValue: viewModel)
-    }
-    @ObservedObject private var viewModel: AppViewModel
-    @State private var letters: [Letter] = []
-    
+    @StateObject private var viewModel = AppViewModel()
+    @State private var navigationPath = NavigationPath()
+
+   
+    @State private var red: Double = 255
+    @State private var green: Double = 243
+    @State private var blue: Double = 224
+
     var body: some View {
-        VStack {
-            Button("New") {
-                viewModel.startNewGame()
-            }.buttonStyle(.borderedProminent)
-            Spacer()
-            LetterGroup(letters: $letters) { arr in
-                let z = arr.prettyPrint()
-                print("Rearrange \(z)")
-                viewModel.rearrange(to: arr)
+        NavigationStack(path: $navigationPath) {
+            WordView(
+                viewModel: viewModel,
+                red: red, green: green, blue: blue,
+                onGameHistory: {
+                    navigationPath.append(AppRoute.gameHistory)
+                },
+                onSettings: {
+                    navigationPath.append(AppRoute.gameSettings)
+                }
+            )
+            .navigationDestination(for: AppRoute.self) { route in
+                switch route {
+                
+
+                case .gameHistory:
+                    GameHistoryView(
+                        viewModel: viewModel,
+                        onDetails: { word, points, moves, time in
+                            navigationPath.append(AppRoute.details(
+                                word: word, points: points, moves: moves, time: time
+                            ))
+                        },
+                        onWord: {
+                            navigationPath.removeLast()
+                        }
+                    )
+
+                case .gameSettings:
+                    GameSettingsView(
+                        viewModel: viewModel,
+                        onWord: { wordMin, wordMax, r, g, b in
+                           
+                            viewModel.setWordLength(min: wordMin, max: wordMax)
+                            red = r
+                            green = g
+                            blue = b
+                            navigationPath.removeLast()
+                        }
+                    )
+
+                case .details(let word, let points, let moves, let time):
+                    DetailsView(
+                        word: word, points: points, moves: moves, time: time,
+                        onGameHistory: {
+                            navigationPath.removeLast()
+                        }
+                    )
+                }
             }
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
-        .background(.yellow)
-        .onReceive(viewModel.$letters) { newValue in
-            print("New word in content view")
-            letters = newValue
         }
     }
 }
 
-#if DEBUG
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView(viewModel: AppViewModel())
-    }
-}
-#endif
 

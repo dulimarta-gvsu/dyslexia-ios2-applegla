@@ -112,14 +112,46 @@ struct BigLetter: View {
     var body: some View {
         ZStack{
             Text(self.ch)
-                .font(Font.system(size: 0.8 * self.size, weight: .bold))
+                .font(.system(size: 0.75 * self.size, weight: .bold))
+                .padding(.trailing, size * 0.12)
+                .padding(.bottom, size * 0.12)
         }
         .frame(width: self.size, height: self.size)
-        .background(self.pt == 0 ? .clear : .mint)
-        .cornerRadius(10)
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(.black, lineWidth: 2)
+        .background(
+            self.pt == 0
+            ? .clear
+            : Color(
+                red: Double(0xFF) / 255.0,
+                green: Double(0xF3) / 255.0,
+                blue: Double(0xE0) / 255.0
+              )
         )
+        .cornerRadius(10)
+        .overlay(alignment: .bottomTrailing) {
+            if pt > 0 {
+                Text("\(pt)")
+                    .font(.system(size: size * 0.18, weight: .bold))
+                    .foregroundColor(.black)
+                    .padding(.horizontal, size * 0.06)
+                    .padding(.vertical, size * 0.03)
+                    .background(
+                        RoundedRectangle(cornerRadius: size * 0.12, style: .continuous)
+                            .fill(
+                                  Color(
+                                      red: Double(0xFF) / 255.0,
+                                      green: Double(0xF3) / 255.0,
+                                      blue: Double(0xE0) / 255.0
+                                  ).opacity(0.9)
+                              )
+                              .stroke(Color.black.opacity(0.1), lineWidth: 1)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: size * 0.12, style: .continuous)
+                            .stroke(Color.black.opacity(0.15), lineWidth: 1) // subtle edge
+                    )
+                    .padding(.trailing, size * 0.12)
+                    .padding(.bottom, size * 0.10)
+            }
+        }
     }
 }

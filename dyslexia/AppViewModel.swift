@@ -156,6 +156,12 @@ class AppViewModel: ObservableObject {
         wordMin = min
         wordMax = max
     }
+    
+    func applyRearrangedLetters(_ newLetters: [Letter]) {
+        self.letters = newLetters.map { Optional($0) }
+        rearrangeCount += 1
+        checkIfSolved()
+    }
 }
 
 

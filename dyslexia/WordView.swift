@@ -8,10 +8,23 @@
 import SwiftUI
 
 struct WordView: View {
-    init(viewModel: AppViewModel) {
+    init(viewModel: AppViewModel, red: Double = 109, green: Double = 76, blue: Double = 65,
+         onGameHistory: @escaping () -> Void = {},
+         onSettings: @escaping () -> Void = {}) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self.red = red
+        self.green = green
+        self.blue = blue
+        self.onGameHistory = onGameHistory
+        self.onSettings = onSettings
     }
+
     @ObservedObject private var viewModel: AppViewModel
+    let red: Double
+    let green: Double
+    let blue: Double
+    let onGameHistory: () -> Void
+    let onSettings: () -> Void
 
     var body: some View {
         ZStack {
@@ -49,10 +62,10 @@ struct WordView: View {
                         viewModel.selectNewWord()
                     }
                     TopButton(label: "Game History") {
-                        // onGameHistory()
+                        onGameHistory()
                     }
                     TopButton(label: "Settings") {
-                        // onSettings()
+                        onSettings()
                     }
                 }
                 .padding(.top, 20)
@@ -107,13 +120,14 @@ struct WordView: View {
                         get: { viewModel.letters.compactMap { $0 } },
                         set: { viewModel.letters = $0.map { Optional($0) } }
                     )
-                    LetterGroup(letters: nonNilBinding) { arr in
+                    let tileColor = Color(red: red / 255.0, green: green / 255.0, blue: blue / 255.0)
+
+                    LetterGroup(letters: nonNilBinding, onRearrangeLetters: { arr in
                         if let z = arr.prettyPrint() {
                             print("Rearrange \(z)")
                         }
                         viewModel.applyRearrangedLetters(arr)
-                    }
-
+                    }, tileColor: tileColor)
                     
                     Text("Total Score: \(viewModel.totalScore)")
                         .font(.system(size: 30, weight: .bold))

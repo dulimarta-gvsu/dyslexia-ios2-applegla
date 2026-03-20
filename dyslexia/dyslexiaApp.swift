@@ -6,10 +6,11 @@ import SwiftUI
 
 @main
 struct dyslexiaApp: App {
+    @StateObject private var viewModel = AppViewModel()
     var body: some Scene {
         WindowGroup {
-            let viewModel = AppViewModel()
-            ContentView(viewModel: viewModel)
+            ContentView()
+                .environmentObject(viewModel)
         }
     }
 }

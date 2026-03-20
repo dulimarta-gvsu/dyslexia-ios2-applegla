@@ -4,6 +4,12 @@ struct LetterGroup: View {
     @Binding var letters: [Letter]
     var onRearrangeLetters: ([Letter]) -> Void
     
+    var tileColor: Color = Color(
+        red: Double(0xFF) / 255.0,
+        green: Double(0xF3) / 255.0,
+        blue: Double(0xE0) / 255.0
+    )
+    
     @State var boxSize = CGSize.zero
     @State var startCellIndex: Int? = nil
     @State var blankCellIndex: Int? = nil
@@ -20,18 +26,18 @@ struct LetterGroup: View {
             // the relative position of the starting drag point w.r.t
             // to the HStack center
             if let draggedLetter {
-                BigLetter(letter: draggedLetter, size: letterSize)
+                BigLetter(letter: draggedLetter, size: letterSize, tileColor: tileColor)
                     .offset(x: dragOffset.x + startPointerPosition.x - boxSize.width / 2, y: dragOffset.y)
             }
             VStack {
                 HStack(spacing: 2) {
                     if letters.count > 0 {
                         ForEach(Array(self.letters.enumerated()), id: \.offset) {  pos, letter in
-                            BigLetter(letter: letter, size: letterSize)
+                            BigLetter(letter: letter, size: letterSize, tileColor: tileColor)
                         }
                     } else {
                         // Show a blank box if there are no letters
-                        BigLetter(letter: Letter(), size: letterSize)
+                        BigLetter(letter: Letter(), size: letterSize, tileColor: tileColor)
                     }
                 }
                 .onGeometryChange(for: CGSize.self,
@@ -104,10 +110,13 @@ struct BigLetter: View {
     private let ch: String
     private let pt: Int
     let size: CGFloat
-    init(letter: Letter, size: CGFloat = 44) {
+    let tileColor: Color
+    
+    init(letter: Letter, size: CGFloat = 44, tileColor: Color) {
         self.ch = String(letter.text)
         self.pt = letter.point
         self.size = size
+        self.tileColor = tileColor
     }
     var body: some View {
         ZStack{
@@ -120,11 +129,7 @@ struct BigLetter: View {
         .background(
             self.pt == 0
             ? .clear
-            : Color(
-                red: Double(0xFF) / 255.0,
-                green: Double(0xF3) / 255.0,
-                blue: Double(0xE0) / 255.0
-              )
+            : tileColor
         )
         .cornerRadius(10)
         .overlay(alignment: .bottomTrailing) {
@@ -137,17 +142,13 @@ struct BigLetter: View {
                     .background(
                         RoundedRectangle(cornerRadius: size * 0.12, style: .continuous)
                             .fill(
-                                  Color(
-                                      red: Double(0xFF) / 255.0,
-                                      green: Double(0xF3) / 255.0,
-                                      blue: Double(0xE0) / 255.0
-                                  ).opacity(0.9)
+                                  tileColor.opacity(0.9)
                               )
                               .stroke(Color.black.opacity(0.1), lineWidth: 1)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: size * 0.12, style: .continuous)
-                            .stroke(Color.black.opacity(0.15), lineWidth: 1) // subtle edge
+                            .stroke(Color.black.opacity(0.15), lineWidth: 1) 
                     )
                     .padding(.trailing, size * 0.12)
                     .padding(.bottom, size * 0.10)
